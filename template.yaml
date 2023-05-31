@@ -41,7 +41,7 @@ Resources:
         Fn::GetAtt:
           - pineappleCheckLambdaHandlerServiceRoleFC4E3211
           - Arn
-      Runtime: nodejs12.x
+      Runtime: nodejs14.x
     DependsOn:
       - pineappleCheckLambdaHandlerServiceRoleFC4E3211
     Metadata:
@@ -170,7 +170,7 @@ Resources:
         Fn::GetAtt:
           - stateMachineLambdaHandlerServiceRoleDEB9C06E
           - Arn
-      Runtime: nodejs12.x
+      Runtime: nodejs14.x
       DeadLetterConfig:
         TargetArn:
           Fn::GetAtt:
