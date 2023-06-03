@@ -1,4 +1,4 @@
-exports.handler = async function(flavour:any) {
+export const orderPizza = async function(flavour:any) {
     console.log("Requested Pizza :", JSON.stringify(flavour, undefined, 2));
     
     let containsPineapple = false;
@@ -9,3 +9,5 @@ exports.handler = async function(flavour:any) {
 
     return {'containsPineapple': containsPineapple}
 }
+
+exports.handler = orderPizza;

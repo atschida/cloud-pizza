@@ -35,8 +35,26 @@ test('State Machine Created', () => {
         [
           "{\"StartAt\":\"Order Pizza Job\",\"States\":{\"Order Pizza Job\":{\"Next\":\"With Pineapple?\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"InputPath\":\"$.flavour\",\"ResultPath\":\"$.pineappleAnalysis\",\"Resource\":\"",
           {
+            "Fn::GetAtt": [
+              "pineappleCheckLambdaHandlerFDB742D5",
+              "Arn"
+            ]
           },
-          "\"},\"With Pineapple?\":{\"Type\":\"Choice\",\"Choices\":[{\"Variable\":\"$.pineappleAnalysis.containsPineapple\",\"BooleanEquals\":true,\"Next\":\"Sorry, We Dont add Pineapple\"}],\"Default\":\"Lets make your pizza\"},\"Lets make your pizza\":{\"Type\":\"Succeed\",\"OutputPath\":\"$.pineappleAnalysis\"},\"Sorry, We Dont add Pineapple\":{\"Type\":\"Fail\",\"Error\":\"Failed To Make Pizza\",\"Cause\":\"They asked for Pineapple\"}},\"TimeoutSeconds\":300}"
+          "\"},\"With Pineapple?\":{\"Type\":\"Choice\",\"Choices\":[{\"Variable\":\"$.pineappleAnalysis.containsPineapple\",\"BooleanEquals\":true,\"Next\":\"Handle Failure\"}],\"Default\":\"Deliver Pizza\"},\"Deliver Pizza\":{\"Next\":\"Your pizza is on the way!\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"InputPath\":\"$.address\",\"ResultPath\":\"$.deliveryDetails\",\"Resource\":\"",
+          {
+            "Fn::GetAtt": [
+              "deliverPizzaLambdaHandler15A6A3CC",
+              "Arn"
+            ]
+          },
+          "\"},\"Your pizza is on the way!\":{\"Type\":\"Succeed\",\"OutputPath\":\"$.deliveryDetails\"},\"Handle Failure\":{\"Next\":\"Sorry, We Dont add Pineapple\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"InputPath\":\"$.pineappleAnalysis.containsPineapple\",\"ResultPath\":\"$.failureResult\",\"Resource\":\"",
+          {
+            "Fn::GetAtt": [
+              "handleFailureLambdaHandler25AADEF8",
+              "Arn"
+            ]
+          },
+          "\"},\"Sorry, We Dont add Pineapple\":{\"Type\":\"Fail\",\"Error\":\"Failed To Make Pizza\",\"Cause\":\"They asked for Pineapple\"}},\"TimeoutSeconds\":300}"
         ]
       ]
     },

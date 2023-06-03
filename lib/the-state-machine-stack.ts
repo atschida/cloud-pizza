@@ -13,7 +13,7 @@ export class TheStateMachineStack extends cdk.Stack {
      * Step Function Starts Here
      */
      
-    //The first thing we need to do is see if they are asking for pineapple on a pizza
+    // The first thing we need to do is see if they are asking for pineapple on a pizza
     let pineappleCheckLambda = new lambda.Function(this, 'pineappleCheckLambdaHandler', {
       runtime: lambda.Runtime.NODEJS_14_X,
       code: lambda.Code.fromAsset('lambda-fns'),
@@ -28,6 +28,36 @@ export class TheStateMachineStack extends cdk.Stack {
       payloadResponseOnly: true
     })
 
+    // Lambda function to contact support after a failure
+    let handleFailureLambda = new lambda.Function(this, 'handleFailureLambdaHandler', {
+      runtime: lambda.Runtime.NODEJS_14_X,
+      code: lambda.Code.fromAsset('lambda-fns'),
+      handler: 'handleFailure.handler'
+    });
+
+    // Task for handling a failure in the pizza ordering process
+    const handleFailure = new tasks.LambdaInvoke(this, "Handle Failure", {
+      lambdaFunction: handleFailureLambda,
+      inputPath: '$.pineappleAnalysis.containsPineapple',
+      resultPath: '$.failureResult',
+      payloadResponseOnly: true
+    })
+
+    // Lambda function to assign driver to the pizza order
+    let deliverPizzaLambda = new lambda.Function(this, 'deliverPizzaLambdaHandler', {
+      runtime: lambda.Runtime.NODEJS_14_X,
+      code: lambda.Code.fromAsset('lambda-fns'),
+      handler: 'deliverPizza.handler'
+    });
+
+    // Successful delivery step
+    const deliverPizza = new tasks.LambdaInvoke(this, "Deliver Pizza", {
+      lambdaFunction: deliverPizzaLambda,
+      inputPath: '$.address',
+      resultPath: '$.deliveryDetails',
+      payloadResponseOnly: true
+    })
+
     // Pizza Order failure step defined
     const pineappleDetected = new sfn.Fail(this, 'Sorry, We Dont add Pineapple', {
       cause: 'They asked for Pineapple',
@@ -35,17 +65,26 @@ export class TheStateMachineStack extends cdk.Stack {
     });
 
     // If they didnt ask for pineapple let's cook the pizza
-    const cookPizza = new sfn.Succeed(this, 'Lets make your pizza', {
-      outputPath: '$.pineappleAnalysis'
+    const confirmDelivery = new sfn.Succeed(this, 'Your pizza is on the way!', {
+      outputPath: '$.deliveryDetails'
     });
 
-    //Express Step function definition
+    // For a failure we contact support and then return a fail state
+    const failureChain = sfn.Chain
+    .start(handleFailure)
+    .next(pineappleDetected);
+
+    // For success we assign a driver and then return a success state
+    const successChain = sfn.Chain
+    .start(deliverPizza)
+    .next(confirmDelivery);
+
+    // Express Step function definition
     const definition = sfn.Chain
     .start(orderPizza)
     .next(new sfn.Choice(this, 'With Pineapple?') // Logical choice added to flow
-        // Look at the "status" field
-        .when(sfn.Condition.booleanEquals('$.pineappleAnalysis.containsPineapple', true), pineappleDetected) // Fail for pineapple
-        .otherwise(cookPizza));
+        .when(sfn.Condition.booleanEquals('$.pineappleAnalysis.containsPineapple', true), failureChain) // Fail for pineapple
+        .otherwise(successChain));
 
     let stateMachine = new sfn.StateMachine(this, 'StateMachine', {
       definition,

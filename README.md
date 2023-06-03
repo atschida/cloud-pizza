@@ -6,20 +6,32 @@ You would use this pattern for simple or complex business logic in a synchronous
 
 ![Architecture](img/statemachine-arch.png)
 
+### Building, Testing, and Deploying
+Assuming that your environment is already set up for node and AWS CDK (note that the project is currently running on CDK v1.119.0), you can run the following commands to stand up the app.
 
-### Testing It Out
+To build:
+* `npm run build`
+To test:
+* `npm run test`
+To deploy:
+* `npm run deploy`
+
+
+### Sample API Calls
 
 After deployment you should have an API Gateway HTTP API where on the base url you can send a POST request with a payload in the following format:
 
 ```json
 // for a succesful execution
 {
-    "flavour": "pepperoni"
+    "flavour": "pepperoni",
+    "address": "123 Main Street"
 }
 
 //to see a failure
 {
-    "flavour": "pineapple"
+    "flavour": "pineapple",
+    "address": "123 Main Street"
 }
 ```
 
@@ -31,26 +43,26 @@ The response returned is the raw and full output from the step function so will 
 // A successful execution, note the status of SUCCEEDED
 {
     "billingDetails": {
-        "billedDurationInMilliseconds": 500,
+        "billedDurationInMilliseconds": 700,
         "billedMemoryUsedInMB": 64
     },
-    "executionArn": "arn:aws:...",
-    "input": "{ \"flavour\": \"pepperoni\"}",
+    "executionArn": "arn:aws:states:us-east-1:910673953011:express:StateMachine2E01A3A5-IRAtzDIOzu0C:cf8781cd-58b5-439c-b834-c1a5d0649b2d:72d8f27c-1d84-4e8a-a9d8-672d0798d2af",
+    "input": "{\r\n    \"flavour\": \"pepperoni\",\r\n    \"address\": \"123 Main Street\"\r\n}",
     "inputDetails": {
         "__type": "com.amazonaws.swf.base.model#CloudWatchEventsExecutionDataDetails",
         "included": true
     },
-    "name": "6e520263-96db-4b80-9b70-659a6972c806",
-    "output": "{\"containsPineapple\":false}",
+    "name": "cf8781cd-58b5-439c-b834-c1a5d0649b2d",
+    "output": "{\"address\":\"123 Main Street\",\"deliveryDriver\":\"Mike\"}",
     "outputDetails": {
         "__type": "com.amazonaws.swf.base.model#CloudWatchEventsExecutionDataDetails",
         "included": true
     },
-    "startDate": 1.629880767853E9,
-    "stateMachineArn": "arn:aws:...",
+    "startDate": 1.685811447555E9,
+    "stateMachineArn": "arn:aws:states:us-east-1:910673953011:stateMachine:StateMachine2E01A3A5-IRAtzDIOzu0C",
     "status": "SUCCEEDED",
-    "stopDate": 1.629880768343E9,
-    "traceHeader": "Root=1-612601bf-c54eff48a04f8cc9ce170772;Sampled=1"
+    "stopDate": 1.685811448221E9,
+    "traceHeader": "Root=1-647b70f7-6eb0f723ec4e8d01e74d5f2c;Sampled=1"
 }
 
 // a failed execution, notice status: FAILED and the cause/error properties
@@ -61,22 +73,22 @@ The response returned is the raw and full output from the step function so will 
     },
     "cause": "They asked for Pineapple",
     "error": "Failed To Make Pizza",
-    "executionArn": "arn:aws:...",
-    "input": "{ \"flavour\": \"pineapple\"}",
+    "executionArn": "arn:aws:states:us-east-1:910673953011:express:StateMachine2E01A3A5-IRAtzDIOzu0C:8213edd5-e51b-403a-82e7-aa0709bbf0a9:b7bf3253-82b1-460e-8b00-41334ced67e1",
+    "input": "{\r\n    \"flavour\": \"pineapple\",\r\n    \"address\": \"123 Main Street\"\r\n}",
     "inputDetails": {
         "__type": "com.amazonaws.swf.base.model#CloudWatchEventsExecutionDataDetails",
         "included": true
     },
-    "name": "26d19050-7f9a-4b08-bea3-4106a403774f",
+    "name": "8213edd5-e51b-403a-82e7-aa0709bbf0a9",
     "outputDetails": {
         "__type": "com.amazonaws.swf.base.model#CloudWatchEventsExecutionDataDetails",
         "included": true
     },
-    "startDate": 1.629883060124E9,
-    "stateMachineArn": "arn:aws:...",
+    "startDate": 1.685811480423E9,
+    "stateMachineArn": "arn:aws:states:us-east-1:910673953011:stateMachine:StateMachine2E01A3A5-IRAtzDIOzu0C",
     "status": "FAILED",
-    "stopDate": 1.629883060579E9,
-    "traceHeader": "Root=1-61260ab4-8c35f155b7a908d900562f1e;Sampled=1"
+    "stopDate": 1.685811480851E9,
+    "traceHeader": "Root=1-647b7118-4813320dfa0ce5464043ac5a;Sampled=1"
 }
 ```
 
