@@ -4,17 +4,14 @@ This is an example CDK stack to deploy The State Machine stack described by Jere
 
 You would use this pattern for simple or complex business logic in a synchronous or an asynchronous setup. Step Functions come with lots of built in robustness features that will reduce your code liability 
 
-![Architecture](img/statemachine-arch.png)
-
 ### Building, Testing, and Deploying
 Assuming that your environment is already set up for node and AWS CDK (note that the project is currently running on CDK v1.119.0), you can run the following commands to stand up the app.
 
-To build:
-* `npm run build`
-To test:
-* `npm run test`
-To deploy:
-* `npm run deploy`
+To build: `npm run build`
+
+To test: `npm run test`
+
+To deploy: `npm run deploy`
 
 
 ### Sample API Calls
@@ -92,7 +89,7 @@ The response returned is the raw and full output from the step function so will 
 }
 ```
 
-## Useful commands
+## Additional commands
 
  * `npm run build`   compile typescript to js
  * `npm run watch`   watch for changes and compile
